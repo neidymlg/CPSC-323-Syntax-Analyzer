@@ -147,7 +147,7 @@ public:
         }
     }
 
-    bool Function(){
+    void Function(){
         // function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>
         Token token = lexer();
         if (token.type == TokenType::KEYWORD && token.value == "function") {
@@ -159,7 +159,6 @@ public:
                 if(token.type == TokenType::SEPARATOR && token.value == ")"){
                     Opt_Declaration_List();
                     Body();
-                    return true;
                 } else {
                     cout << "Error: Expected ')' at the end of Function" << endl;
                 }
@@ -170,7 +169,6 @@ public:
         } else {
             cout << "Error: Expected 'function' at the start of Function" << endl;
         }
-        return false;
     }
     
     void Opt_Parameter_List(){
