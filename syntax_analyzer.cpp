@@ -555,7 +555,7 @@ public:
 
     void Primary() {
         Token token = lexer();
-        if (token.type == TokenType::INTEGER || token.type == TokenType::REAL) {
+        if (token.type == TokenType::INTEGER || token.type == TokenType::REAL || token.type == TokenType::IDENTIFIER) {
             // Valid primary
         } else {
             currentIndex--;
