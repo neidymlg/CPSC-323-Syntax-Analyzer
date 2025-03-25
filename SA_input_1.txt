@@ -51,10 +51,7 @@ Output:
                    separator                          ;
                    keyword                            print
                    separator                          (
-                   identifier                         convertx
-                   separator                          (
                    identifier                         low
-                   separator                          )
                    separator                          )
                    separator                          ;
                    identifier                         low

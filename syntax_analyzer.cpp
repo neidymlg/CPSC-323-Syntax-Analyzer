@@ -61,6 +61,42 @@ private:
         }
     }
 
+    bool epsilon(TokenType type){
+        Token token = lexer();
+        if(token.type == type){
+            return true;
+        }
+        else{
+            currentIndex--;
+            return false;
+        }
+    }
+
+    bool epsilon(Token exptoken){
+        Token token = lexer();
+        if(token.type == exptoken.type && token.value == exptoken.value){
+            return true;
+        }
+        else{
+            currentIndex--;
+            return false;
+        }
+    }
+
+    bool epsilon(TokenType type, const std::vector<std::string>& multiValues) {
+        Token token = lexer();
+
+        if (token.type == type) {
+            for (const auto& value : multiValues) {
+                if (token.value == value) {
+                    return true;
+                }
+            }
+        }
+        currentIndex--; 
+        return false;
+    }
+
 public: 
     void readFile(const string& input, const int& headerNumber) {
         ifstream file(input);
@@ -126,11 +162,8 @@ public:
 
     void Opt_Function_Definitions(){
         // <Function Definitions> | <Empty>
-        if(Empty()){
-            return;
-        }
-        else{
-            Function_Definitions();
+        if(!Empty()){
+             Function_Definitions();
         }
     }
 
@@ -173,11 +206,8 @@ public:
     
     void Opt_Parameter_List(){
         // Parameter_List() | Empty()
-        if(Empty()){
-            return;
-        }
-        else{
-            Parameter_List();
+        if(!Empty()){
+           Parameter_List();
         }
     }
 
@@ -189,17 +219,13 @@ public:
 
     void P(){
         // (ε |  , <Parameter List>)
-        Token token = lexer();
-        if(token.type == TokenType::SEPARATOR && token.value == ","){
+        if(epsilon(Token(TokenType::SEPARATOR, ","))){
             Parameter_List();
-        }
-        else{
-           currentIndex--;
         }
     }
 
     void Parameter(){
-        //<IDs > <Qualifier>
+        //<IDs> <Qualifier>
         IDS();
         Qualifier();
     }
@@ -232,39 +258,18 @@ public:
 
     void Opt_Declaration_List(){
         // Declaration_List() | Empty()
-        // if(Empty()){
-        //     return;
-        // }
-        // else{
-        //     Declaration_List();
-        // }
-        Token token = lexer();
-        if(token.type == TokenType::KEYWORD){
+        if(epsilon(TokenType::KEYWORD, {"integer", "real", "boolean"})){
             currentIndex--;
             Declaration_List();
-        }
-        else{
-            currentIndex--;
         }
     }
 
     void Declaration_List(){
+        // <Declaration> ; <D>
         Declaration();
         Token token = lexer();
         if(token.type == TokenType::SEPARATOR && token.value == ";"){
-            token = lexer();
-            if(token.type == TokenType::SEPARATOR && token.value == "("){
                 D();
-                token = lexer();
-                if(token.type == TokenType::SEPARATOR && token.value == ")"){
-                    // End of Declaration_List
-                } else {
-                    cout << "Error: Expected ')' at the end of Declaration_List" << endl;
-                }
-
-            } else {
-                cout << "Error: Expected ';' at the end of Declaration_List" << endl;
-            }
         } else {
             cout << "Error: Expected ';' at the end of Declaration_List" << endl;
         }
@@ -291,12 +296,8 @@ public:
 
     void id(){
         //  (ε | , <IDs>)
-        Token token = lexer();
-        if(token.type == TokenType::SEPARATOR && token.value == ","){
+        if(epsilon(Token(TokenType::SEPARATOR, ","))){
             IDS();
-        }
-        else{
-            currentIndex--;
         }
     }
 
@@ -315,10 +316,14 @@ public:
         S();
     }
 
+    //CHANGE THIS
     void S(){
         //  (ε | <Statement List>)
-        if (!Empty()) {
+        if(!epsilon(Token(TokenType::SEPARATOR, "}")) && !Empty()){
             Statement_List();
+        }
+        else{
+            currentIndex--;
         }
     }
 
@@ -328,9 +333,9 @@ public:
 
         // <Compound> ::= { <Statement List> }
         // <Assign> ::= <Identifier> = <Expression> ;
-        // <If> ::= if ( <Condition> )  <Statement> <if>  <Statement> endif
+        // <If> ::= if ( <Condition> )  <Statement> <if> 
         // <Return> ::= return <r>
-        // <Print> ::= print ( <Expression>)
+        // <Print> ::= print ( <Expression>);
         // <Scan> ::= scan ( <IDs> );
         // <While> ::= while ( <Condition> ) <Statement> endwhile
         if(token.type == TokenType::SEPARATOR && token.value == "{"){
@@ -351,13 +356,6 @@ public:
                 if(token.type == TokenType::SEPARATOR && token.value == ")"){
                     Statement();
                     _if();
-                    Statement();
-                    if(token.type == TokenType::KEYWORD && token.value == "endif"){
-
-                    }
-                    else{
-                        cout << "Error" << endl;
-                    }
                 }
                 else{
                     cout << "Error" << endl;
@@ -374,8 +372,15 @@ public:
             token = lexer();
             if(token.type == TokenType::SEPARATOR && token.value == "("){
                 Expression();
+                token = lexer();
                 if(token.type == TokenType::SEPARATOR && token.value == ")"){
+                    token = lexer();
+                    if(token.type == TokenType::SEPARATOR && token.value == ";"){
                   
+                    }
+                    else{
+                        cout << "Error in Return" << endl;
+                    }
                 }
                 else{
                     cout << "Error in Return" << endl;
@@ -389,8 +394,15 @@ public:
             token = lexer();
             if(token.type == TokenType::SEPARATOR && token.value == "("){
                 IDS();
+                token = lexer();
                 if(token.type == TokenType::SEPARATOR && token.value == ")"){
+                    token = lexer();
+                    if(token.type == TokenType::SEPARATOR && token.value == ";"){
                   
+                    }
+                    else{
+                        cout << "Error in Return" << endl;
+                    }
                 }
                 else{
                     cout << "Error in Return" << endl;
@@ -404,8 +416,10 @@ public:
             token = lexer();
             if(token.type == TokenType::SEPARATOR && token.value == "("){
                 Condition();
+                token = lexer();
                 if(token.type == TokenType::SEPARATOR && token.value == ")"){
                   Statement();
+                  token = lexer();
                   if(token.type == TokenType::KEYWORD && token.value == "endwhile"){
 
                   }
@@ -421,10 +435,11 @@ public:
                 cout << "Error in Return" << endl;
             }
         }
-        else if(token.type == TokenType::KEYWORD){
+        else if(token.type == TokenType::IDENTIFIER){
             token = lexer();
-                if(token.type == TokenType::SEPARATOR && token.value == "="){
+                if(token.type == TokenType::OPERATOR && token.value == "="){
                     Expression();
+                    token = lexer();
                     if(token.type == TokenType::SEPARATOR && token.value == ";"){
 
                     }
@@ -437,31 +452,31 @@ public:
                 }
         }
         else{
+
             cout << "Error: Invalid Statement" << endl;
         }
 
     }
 
     void _if(){
-        //( endif | else )
+        //endif | else <Statement> endif
         Token token = lexer();
-        if(token.type == TokenType::SEPARATOR && token.value == "("){
-                token = lexer();
-                if(token.type == TokenType::KEYWORD && (token.value == "if" || token.value == "endif")){
-                    token = lexer();
-                    if(token.type == TokenType::SEPARATOR && token.value == ")"){
-                    }
-                    else{
-                        cout << "Error" << endl;
-                    }
-                }
-                else{
-                    cout << "Error" << endl;
-                }
+        token = lexer();
+        if(token.type == TokenType::KEYWORD && token.value == "endif"){
+        }
+        else if(token.type == TokenType::KEYWORD && token.value == "else"){
+            Statement();
+            token = lexer();
+            if(token.type == TokenType::KEYWORD && token.value == "endif"){
+            }
+            else{
+                cout << "Error" << endl;
+            }
         }
         else{
             cout << "Error" << endl;
         }
+
     }
 
     void r(){
@@ -512,26 +527,19 @@ public:
 
     void E() {
         //  + <Term> <E> | - <Term><E> | ɛ
-
-        Token token = lexer();
-        if (token.type == TokenType::OPERATOR && (token.value == "+" || token.value == "-")) {
+        if(epsilon(TokenType::OPERATOR, {"+", "-"})){
             Term();
             E();
-        } else {
-            currentIndex--; // Move back one token
         }
 
     }
 
     void T(){
         // * <Factor> <T> | / <Factor> <T> | ɛ
-        Token token = lexer();
-        if (token.type == TokenType::OPERATOR && (token.value == "*" || token.value == "/")) {
+        if(epsilon(TokenType::OPERATOR, {"*", "/"})){
             Factor();
             T();
-        } else {
-            currentIndex--; // Move back one token
-        }
+        } 
     }
 
     void Term(){
@@ -542,22 +550,17 @@ public:
     
     void Factor() {
         // - <Primary> | <Primary>
-        Token token = lexer();
-        if (token.type == TokenType::OPERATOR && token.value == "-") {
+        if(epsilon(Token(TokenType::OPERATOR, "-"))){
             Primary();
         } else {
-            currentIndex--; // Move back one token
             Primary();
         }
     }
 
     void Primary() {
-        Token token = lexer();
-        if (token.type == TokenType::INTEGER || token.type == TokenType::REAL || token.type == TokenType::IDENTIFIER) {
+        if (epsilon(TokenType::INTEGER) || epsilon(TokenType::REAL) || epsilon(TokenType::IDENTIFIER)) {
             // Valid primary
-        } else {
-            currentIndex--;
-        }
+        } 
     }
 
 };
