@@ -24,6 +24,14 @@ struct Token {
 
 class SyntaxAnalyzer { 
 private:
+// print statement:
+    bool printswitch = true;
+    void printstatement(const std::string& statement){
+        if(printswitch){
+            std::cout << statement << std::endl;
+        }
+    }
+    
     std::vector<Token> tokens;
     size_t currentIndex = 0;
 
@@ -564,9 +572,18 @@ public:
 
 int main(){
     SyntaxAnalyzer analyzer;
+
     analyzer.readFile("SA_input_1.txt", 3); // Adjust the parameters as needed
 
     analyzer.Rat25S();
+
+    // check whether or not the parse was completed (whether or not if the syntax is correct)
+    // try {
+    //     analyzer.Rat25s();
+    //     cout << "parse complete = correct syntax" << endl;
+    // } catch (const expection& e) {
+    //     cerr << "error: failed parse" << e.what() << endl;
+    // }
 
     return 0;
 }
