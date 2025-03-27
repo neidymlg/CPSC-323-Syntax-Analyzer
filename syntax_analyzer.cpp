@@ -240,8 +240,7 @@ public:
 
     void Qualifier(){
         // integer | boolean | real
-        Token token = lexer();
-        if(token.type == TokenType::KEYWORD && (token.value == "integer" || token.value == "real" || token.value == "boolean")){
+        if(epsilon(TokenType::KEYWORD, {"integer", "real", "boolean"})){
 
         } else {
             cout << "Error: Invalid Keyword" << endl;
@@ -327,7 +326,7 @@ public:
     //CHANGE THIS
     void S(){
         //  (ε | <Statement List>)
-        if(!epsilon(Token(TokenType::SEPARATOR, "}")) && !Empty()){
+        if(!epsilon(TokenType::SEPARATOR, {"}", "$$"})){
             Statement_List();
         }
         else{
@@ -471,6 +470,7 @@ public:
         Token token = lexer();
         token = lexer();
         if(token.type == TokenType::KEYWORD && token.value == "endif"){
+
         }
         else if(token.type == TokenType::KEYWORD && token.value == "else"){
             Statement();
@@ -516,11 +516,9 @@ public:
     }
 
     void Relop(){
-        // == | != | > | < | <= | =>
-        Token token = lexer();
-        if(token.type == TokenType::OPERATOR && (token.value == "==" || token.value == "!=" || token.value == ">" 
-            || token.value == "<" || token.value == "<=" || token.value == "=>" )){
-                
+        // == | != | > | < | <= | >=
+        if(epsilon(TokenType::OPERATOR, {"==", "!=", ">", "<", "<=", ">="})){
+
         }
         else{
             cout << "Error" << endl;
