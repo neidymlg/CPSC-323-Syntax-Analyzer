@@ -468,7 +468,6 @@ public:
     void _if(){
         //endif | else <Statement> endif
         Token token = lexer();
-        token = lexer();
         if(token.type == TokenType::KEYWORD && token.value == "endif"){
 
         }
