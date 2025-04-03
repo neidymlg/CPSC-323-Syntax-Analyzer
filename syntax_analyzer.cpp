@@ -212,10 +212,14 @@ public:
         }
     }
     
+    //CHANGE THIS empty or )
     void Opt_Parameter_List(){
         // Parameter_List() | Empty()
-        if(!Empty()){
-           Parameter_List();
+        if(!epsilon(TokenType::SEPARATOR, {")", "$$"})){
+            Parameter_List();
+        }
+        else{
+            currentIndex--;
         }
     }
 
@@ -284,8 +288,11 @@ public:
 
     void D(){
         // (ε | <Declaration List>)
-        if (!Empty()) {
+        if(!epsilon(TokenType::SEPARATOR, {"{", "$$"})){
             Declaration_List();
+        }
+        else{
+            currentIndex--;
         }
     }
 
@@ -323,7 +330,7 @@ public:
         S();
     }
 
-    //CHANGE THIS
+
     void S(){
         //  (ε | <Statement List>)
         if(!epsilon(TokenType::SEPARATOR, {"}", "$$"})){
@@ -360,6 +367,7 @@ public:
             token = lexer();
             if(token.type == TokenType::SEPARATOR && token.value == "("){
                 Condition();
+                token = lexer();
                 if(token.type == TokenType::SEPARATOR && token.value == ")"){
                     Statement();
                     _if();
@@ -562,10 +570,15 @@ public:
         }
     }
 
+    //CHANGE
+    // SHOULD This include keywords
     void Primary() {
-        if (epsilon(TokenType::INTEGER) || epsilon(TokenType::REAL) || epsilon(TokenType::IDENTIFIER)) {
+        if (epsilon(TokenType::INTEGER) || epsilon(TokenType::REAL) || epsilon(TokenType::IDENTIFIER) || epsilon(TokenType::KEYWORD, {"true", "false"})) {
             // Valid primary
         } 
+        else{
+            cout << "Error in Primary" << endl;
+        }
     }
 
 };
@@ -573,7 +586,7 @@ public:
 int main(){
     SyntaxAnalyzer analyzer;
 
-    analyzer.readFile("SA_input_1.txt", 3); // Adjust the parameters as needed
+    analyzer.readFile("SA_input_2.txt", 0); // Adjust the parameters as needed
 
     analyzer.Rat25S();
 
