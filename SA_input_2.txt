@@ -90,11 +90,11 @@
                separator                          $$ 
                keyword                            scan
                separator                          (
-               identifier                         low
+               identifier                         r_1
                separator                          ,
-               identifier                         high
-                separator                          ,
-                identifier                         step
+               identifier                         r_2
+               separator                          ,
+               identifier                         x
                separator                          )
                separator                          ;
                separator                          $$ 
