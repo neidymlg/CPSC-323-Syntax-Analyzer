@@ -48,12 +48,10 @@ Output:
                    separator                          (
                    identifier                         low
                    separator                          )
-                   separator                          ;
                    keyword                            print
                    separator                          (
                    identifier                         low
                    separator                          )
-                   separator                          ;
                    identifier                         low
                    operator                           =
                    identifier                         low

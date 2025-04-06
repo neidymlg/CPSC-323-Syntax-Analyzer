@@ -47,8 +47,7 @@
                separator                          ;  
                separator                          } 
                keyword                            endif  
-               keyword                            return  
-               identifier                         x  
+               keyword                            return   
                separator                          ;  
                separator                          } 
                keyword                            function  
@@ -69,8 +68,7 @@
                keyword                            print  
                separator                          (  
                real                               3.14  
-               separator                          )  
-               separator                          ;  
+               separator                          )   
                identifier                         flag  
                operator                           =  
                keyword                            true  
@@ -97,5 +95,16 @@
                identifier                         x
                separator                          )
                separator                          ;
+               keyword                            if  
+               separator                          (  
+               identifier                         a  
+               operator                           =>
+               identifier                         b            
+               separator                          )
+               identifier                         x  
+               operator                           =  
+               integer                            20  
+               separator                          ;  
+               keyword                            endif  
                separator                          $$ 
 

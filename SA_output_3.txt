@@ -17,4 +17,4 @@ $$ <Statement List>
 ================================================================================
 			Token:SEPARATOR	Lexeme:$$
 ================================================================================
-<Statement> -> Error: Invalid Statement
+<Statement> -> Error: Invalid Statement. Expected statement type of <Compound>, <Assign>, <If>, <Return>, <Print>, <Scan>, or <While>

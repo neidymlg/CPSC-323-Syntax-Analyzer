@@ -22,6 +22,8 @@ struct Token {
     Token(TokenType type, string value) : type(type), value(value) {}
 };
 
+// Redirects the output to a file
+// changes cout to a file stream
 class OutputRedirector {
 private:
     std::ofstream file;
@@ -49,11 +51,14 @@ private:
     vector<Token> tokens;
     size_t currentIndex = 0;
 
+    // Error handling function
+    // Prints the error message and exits the program
     void error(const string& message) {
         cout << message;
         exit(1);
     }
 
+    // Converts string to TokenType
     TokenType stringToTokenType(const string& tokenType) {
         if (tokenType == "keyword") return TokenType::KEYWORD;
         if (tokenType == "identifier") return TokenType::IDENTIFIER;
@@ -64,6 +69,7 @@ private:
         return TokenType::UNKNOWN;
     }
     
+    // Converts TokenType to string for printing
     string tokenTypeToString(TokenType type) {
         switch (type) {
             case TokenType::KEYWORD: return "KEYWORD";
@@ -79,9 +85,11 @@ private:
     }
 
     Token lexer(bool print = false) {
+        // Check if there are more tokens to read
         if (currentIndex < tokens.size()) {
             Token token = tokens[currentIndex++];
 
+            //will print the token type and value if the print is true
             if(print){
                 cout << "================================================================================" << endl;
                 cout << "\t\t\tToken:" << tokenTypeToString(token.type) << "\tLexeme:" << token.value << endl;
@@ -95,6 +103,7 @@ private:
         }
     }
 
+    //returns true if the token is $$
     bool check$$(Token token){
         if (token.type == TokenType::SEPARATOR && token.value == "$$") {
             return true;
@@ -121,15 +130,18 @@ private:
 
 public: 
 
+    //reads all values from the file
     void readFile(const string& input, const int& headerNumber) {
         ifstream file(input);
         string line;
         string tokenValue, tokenType;
 
+        //skips the header information
         for(int i = 0; i < headerNumber; i++){
             getline(file, line);
         }
 
+        //gets token type and token value from each line
         while (getline(file, line)) {
             istringstream lineStream(line);
             lineStream >> tokenType >> tokenValue;
@@ -174,13 +186,12 @@ public:
 
     void Opt_Function_Definitions(){
         // <Function Definitions> | <Empty>
-        cout << "<Opt Function Definitions> -> ";
         if(!Empty()){
-            cout << "<Function Definitions>" << endl;
+            cout << "<Opt Function Definitions> -> <Function Definitions>" << endl;
              Function_Definitions();
         }
         else{
-            cout << "<Empty>" << endl;
+            cout << "<Opt Function Definitions> -> <Empty>" << endl;
         }
     }
 
@@ -193,13 +204,12 @@ public:
 
     void FD(){
         //(ε | <Function Definitions>)
-        cout << "<FD> -> ";
         if (!Empty()) {
-            cout << "<Function Definitions>" << endl;
+            cout << "<FD> -> <Function Definitions>" << endl;
             Function_Definitions();
         }
         else{
-            cout << "ε" << endl;
+            cout << "<FD> -> ε" << endl;
         }
     }
 
@@ -235,15 +245,14 @@ public:
 
     void Opt_Parameter_List(){
         // Parameter_List() | Empty()
-        cout << "<Opt Parameter List> -> ";
         Token token = lexer();
         currentIndex--;
         if(token.type != TokenType::SEPARATOR && (token.value != ")" || token.value != "$$")){
-            cout << "<Parameter List>" << endl;
+            cout << "<Opt Parameter List> -> <Parameter List>" << endl;
             Parameter_List();
         }
         else{
-            cout << "<Empty>" << endl;
+            cout << "<Opt Parameter List> -> <Empty>" << endl;
         }
     }
 
@@ -256,16 +265,15 @@ public:
 
     void P(){
         // (ε |  , <Parameter List>)
-        cout << "<P> -> ";
         Token token = lexer();
         currentIndex--;
         if(token.type == TokenType::SEPARATOR && token.value == ","){
             Token token = lexer(true);
-            cout << ", <Parameter List>" << endl;
+            cout << "<P> -> , <Parameter List>" << endl;
             Parameter_List();
         }
         else{
-            cout << "ε" << endl;
+            cout << "<P> -> ε" << endl;
         }
     }
 
@@ -283,7 +291,7 @@ public:
             cout << "<Qualifier> -> integer | boolean | real" << endl;
         }
         else {
-            error("Error: Invalid Qualifier");
+            error("Error: Invalid Qualifier. Expected token type of integer, boolean, or real");
         }
     }
 
@@ -308,15 +316,14 @@ public:
 
     void Opt_Declaration_List(){
         // Declaration_List() | Empty()
-        cout << "<Opt Declaration List> -> ";
         Token token = lexer();
         currentIndex--;
         if(token.type == TokenType::KEYWORD && (token.value == "integer" || token.value == "real" || token.value == "boolean")){
-            cout << "<Declaration List>" << endl;
+            cout << "<Opt Declaration List> -> <Declaration List>" << endl;
             Declaration_List();
         }
         else{
-            cout << "<Empty>" << endl;
+            cout << "<Opt Declaration List> -> <Empty>" << endl;
         }
     }
 
@@ -335,15 +342,14 @@ public:
 
     void D(){
         // (ε | <Declaration List>)
-        cout << "<D> -> ";
         Token token = lexer();
         currentIndex--;
         if(token.type != TokenType::SEPARATOR && (token.value != "{" || token.value != "$$")){
-            cout << "<Declaration List>" << endl;
+            cout << "<D> -> <Declaration List>" << endl;
             Declaration_List();
         }
         else{
-            cout << "ε" << endl;
+            cout << "<D> -> ε" << endl;
         }
     }
 
@@ -363,16 +369,15 @@ public:
 
     void id(){
         //  (ε | , <IDs>)
-        cout << "<id> -> ";
         Token token = lexer();
         currentIndex--;
         if(token.type == TokenType::SEPARATOR && token.value == ","){
             Token token = lexer(true);
-            cout << ", <IDs>" << endl;
+            cout << "<id> -> , <IDs>" << endl;
             IDS();
         }
         else{
-            cout << "ε" << endl;
+            cout << "<id> -> ε" << endl;
         }
     }
 
@@ -382,7 +387,7 @@ public:
         if(token.type == TokenType::IDENTIFIER) {
             cout << "<Identifier> -> Identifier" << endl;
         } else {
-            error("Error: Invalid Identifier");
+            error("Error: Invalid Identifier. Expected token type of IDENTIFIER");
         }
     }
 
@@ -395,15 +400,14 @@ public:
 
     void S(){
         //  (ε | <Statement List>)
-        cout << "<S> -> ";
         Token token = lexer();
         currentIndex--;
         if(token.type != TokenType::SEPARATOR && (token.value != "}" || token.value != "$$")){
-            cout << "<Statement List>" << endl;
+            cout << "<S> -> <Statement List>" << endl;
             Statement_List();
         }
         else{
-            cout << "ε" << endl;
+            cout << "<S> -> ε" << endl;
         }
     }
 
@@ -416,7 +420,7 @@ public:
         // <Assign> ::= <Identifier> = <Expression> ;
         // <If> ::= if ( <Condition> )  <Statement> <if> 
         // <Return> ::= return <r>
-        // <Print> ::= print ( <Expression>);
+        // <Print> ::= print ( <Expression>)
         // <Scan> ::= scan ( <IDs> );
         // <While> ::= while ( <Condition> ) <Statement> endwhile
         if(token.type == TokenType::SEPARATOR && token.value == "{"){
@@ -464,7 +468,7 @@ public:
         }
         else if(token.type == TokenType::KEYWORD && token.value == "print"){
             cout << "<Print>" << endl;
-            cout << "<Print> -> print ( <Expression> );" << endl;
+            cout << "<Print> -> print ( <Expression> )" << endl;
             cout << "<Print> -> print" << endl;
             token = lexer(true);
             if(token.type == TokenType::SEPARATOR && token.value == "("){
@@ -473,14 +477,7 @@ public:
                 token = lexer(true);
                 if(token.type == TokenType::SEPARATOR && token.value == ")"){
                     cout << ")" << endl;
-                    token = lexer(true);
-                    if(token.type == TokenType::SEPARATOR && token.value == ";"){
-                        cout << ";" << endl;
-                        cout << "End of Print" << endl;
-                    }
-                    else{
-                        error("Error in ';' for <Print>");
-                    }
+                    cout << "End of Print" << endl;
                 }
                 else{
                     error("Error in beginning ')' for <Print>");
@@ -568,7 +565,7 @@ public:
                 }
         }
         else{
-            error("Error: Invalid Statement");
+            error("Error: Invalid Statement. Expected statement type of <Compound>, <Assign>, <If>, <Return>, <Print>, <Scan>, or <While>");
         }
 
     }
@@ -630,14 +627,14 @@ public:
     }
 
     void Relop(){
-        // == | != | > | < | <= | >=
+        // == | != | > | < | <= | =>
         Token token = lexer(true);
         if(token.type == TokenType::OPERATOR && 
-            (token.value == "==" || token.value == "!=" || token.value == ">" || token.value == "<" || token.value == "<=" || token.value == ">=")){
-            cout << "<Relop> -> == | != | > | < | <= | >=" << endl;
+            (token.value == "==" || token.value == "!=" || token.value == ">" || token.value == "<" || token.value == "<=" || token.value == "=>")){
+            cout << "<Relop> -> == | != | > | < | <= | =>" << endl;
         }
         else{
-            error("Error in Relop");
+            error("Error in Relop. Expected token type of OPERATOR with value ==, !=, >, <, <=, or =>");
         }
     }
 
@@ -702,7 +699,6 @@ public:
         }
     }
 
- 
     void Primary() {
        // <Primary> ::= <INTEGER> | <REAL> | <IDENTIFIER> | true, false
         Token token = lexer(true);
@@ -711,7 +707,7 @@ public:
             cout << "<Primary> -> <INTEGER> | <REAL> | <IDENTIFIER> | true, false" << endl;
         } 
         else{
-            error("Error in Primary");
+            error("Error in Primary. Expected token type of INTEGER, REAL, IDENTIFIER, or KEYWORD true, or false");
         }
     }
 
@@ -733,9 +729,9 @@ int main(){
     SyntaxAnalyzer analyzer;
     OutputRedirector redirect(outputFile); // Redirect output to the specified file
 
-    analyzer.readFile(inputFile, headerNumber); // Adjust the parameters as needed
+    analyzer.readFile(inputFile, headerNumber); // Read the input file
 
-    analyzer.Rat25S();
+    analyzer.Rat25S(); // Start the parsing process
 
     return 0;
 }
